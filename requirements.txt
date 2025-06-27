@@ -1,0 +1,7 @@
+# requirements.txt  –  minimal deps for app.py
+Flask==3.1.0
+Flask-SocketIO==5.5.1
+eventlet==0.40.1          # async transport for SocketIO
+opencv-python==4.11.0.86  # or opencv-contrib-python if you prefer
+mediapipe==0.10.21
+numpy==1.26.4
