@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <title>EvalEdge Eye-Tracker</title>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+     body { margin:0; background:#000; }
+     #video { width:100%; max-width:980px; display:block; margin:auto; }
+     #banner {
+        position:absolute; top:10px; left:50%; transform:translateX(-50%);
+        background:#ff0000; color:#fff; padding:12px 24px;
+        font-size:22px; font-weight:bold; display:none; border-radius:6px;
+     }
+  </style>
+</head>
+<body>
+  <div id="banner">LOOK BACK AT THE SCREEN!</div>
+  <img id="video" src="/video_feed">
+
+  <script>
+    // ── Web-Audio one-shot beep ────────────────────────────
+    const ctx   = new (window.AudioContext || window.webkitAudioContext)();
+    function beep(freq = 1000, ms = 500){
+        const osc = ctx.createOscillator();  const gain = ctx.createGain();
+        osc.frequency.value = freq;
+        osc.type = "square";
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); gain.gain.setValueAtTime(1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + ms/1000);
+        osc.stop(ctx.currentTime + ms/1000 + 0.02);
+    }
+    // ───────────────────────────────────────────────────────
+
+    const sock   = io();
+    const banner = document.getElementById('banner');
+
+    sock.on('warn', () => {
+        banner.style.display = 'block';
+        beep();                           // play 1000 Hz, 0.5 s
+    });
+
+    sock.on('focus_lost', () => {
+        alert('Focus lost too long – the exam window will now close.');
+        window.close();                   // replace w/ EvalEdge hook if needed
+    });
+
+    sock.on('connect', () => banner.style.display='none');
+  </script>
+</body>
+</html>
